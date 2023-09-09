@@ -3,10 +3,12 @@
 #### Developed By: Ashish Arora (GitId: ashisharora1998)
 
 Are you tired of formatting your options list for select input like this:
-[{
+ 
+> [{
  label: "value 1",
  value: 1, 
 }]
+
 So I developed this new component where just need to pass your data into the props and define what will be your label and what will be your value with keys from your given data.
 This new Select input library also gives you an optional separate search input to search your options.
 You can customize this component however you want very easily.
