@@ -1,70 +1,47 @@
-# Getting Started with Create React App
+# react-searchable-select
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#### Developed By: Ashish Arora (GitId: ashisharora1998)
 
-## Available Scripts
+Are you tired of formatting your options list for select input like this:
+[{
+ label: "value 1",
+ value: 1, 
+}]
+So I developed this new component where just need to pass your data into the props and define what will be your label and what will be your value with keys from your given data.
+This new Select input library also gives you an optional separate search input to search your options.
+You can customize this component however you want very easily.
+This library is built on MUI components which will be very friendly for you to use
 
-In the project directory, you can run:
 
-### `npm start`
+### Example:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Props list:
 
-### `npm test`
+> ##### selectionList: 
+Pass an array of objects.[{},{},{}]
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+> #### placeholder
 
-### `npm run build`
+> #### value:
+Object as {label:"", value:""}
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> #### onChange:
+will return an object
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+> #### name
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+> #### isRequired: true or false
 
-### `npm run eject`
+> #### label
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+> #### search: true or false
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+> #### autoFormat: true or false
+Pass true if you are adding your selectionList data without formatting it as label and value object
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+> #### labelKey:
+example: "id"
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+> #### valueKeys:
+example:["first_name","last_name"]
