@@ -1,10 +1,18 @@
-import { Box, Button, InputLabel, Menu, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  InputLabel,
+  Menu,
+  Typography,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useEffect, useState } from "react";
 import SELECT_CARET from "../assets/arrowDownLightGrey.svg";
 import { ScrollBox, SearchMenuItem, StyledMenuItem } from "./style";
 import React from "react";
-
+import PropTypes from "prop-types";
 import SearchBar from "../SearchInput/index";
 
 const useStyles = makeStyles((theme) => ({
@@ -75,45 +83,47 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SearchBoxSelect({
-  selectionList,
-  placeholder,
-  labelKey,
-  valueKeys,
-  value = null,
-  onChange,
-  autoFormat = false,
-  name,
-  isRequired,
-  label = null,
-  search = false,
-  allowOther = false,
-  handleOnOtherClick,
-  otherButtonText,
-  menuWidth,
-  buttonWidth,
-}) {
+function containsObject(obj, list) {
+  var i;
+  for (i = 0; i < list.length; i++) {
+    if (list[i].value === obj.value) {
+      return true;
+    }
+  }
+
+  return false;
+}
+function SearchBoxSelect(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const [selection, setSelection] = useState(value);
+  const [selection, setSelection] = useState();
   const [selectOptions, setSelectOptions] = useState([]);
+  const [multiSelection, setMultiSelection] = useState([]);
 
   useEffect(() => {
     let array = [];
-    if (autoFormat) {
-      array = selectionList.map((tag) => {
+    if (props.autoFormat) {
+      array = props.selectionList.map((tag) => {
         let label = [];
-        valueKeys.map((w) => {
+        props.labelKeys.map((w) => {
           label.push(tag[w]);
         });
-        return { value: tag[labelKey], label: label.join(" ") };
+        return { value: tag[props.valueKey], label: label.join(" ") };
       });
     } else {
-      array = [...selectionList];
+      array = [...props.selectionList];
     }
     setSelectOptions(array);
-  }, [selectionList]);
+  }, [props.selectionList]);
+
+  useEffect(() => {
+    if (props.isMultiSelect) {
+      setMultiSelection(props.value);
+    } else {
+      setSelection(props.value);
+    }
+  }, [props.selectionList]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -125,25 +135,44 @@ function SearchBoxSelect({
   };
 
   const handleSelect = (e) => {
-    onChange(e);
+    props.onChange(e);
     setSelection(e);
     setSearchText("");
     setAnchorEl(null);
   };
 
+  const handleMultiSelect = (e) => {
+    let MultiSelection = [...multiSelection];
+    if (MultiSelection.indexOf(e) > -1) {
+      MultiSelection.splice(MultiSelection.indexOf(e), 1);
+    } else {
+      MultiSelection.push(e);
+    }
+    setMultiSelection(MultiSelection);
+    props.onChange(MultiSelection);
+  };
+
+  const handleMultiSelectDelete = (e) => {
+    let MultiSelection = [...multiSelection];
+    MultiSelection.splice(MultiSelection.indexOf(e), 1);
+    setMultiSelection(MultiSelection);
+    props.onChange(MultiSelection);
+  };
+
   return (
     <div>
-      {label && (
+      {props.label && (
         <InputLabel
-          htmlFor={name}
-          required={isRequired}
-          className="inputfield-label"
+          htmlFor={props.name}
+          required={props.isRequired}
+          className="select-box-label"
         >
-          {label}
+          {props.label}
         </InputLabel>
       )}
       <div
-        id={name}
+        className="select-box"
+        id={props.name}
         onClick={handleMenuOpen}
         style={{
           cursor: "pointer",
@@ -156,13 +185,13 @@ function SearchBoxSelect({
           alignItems: "center",
         }}
       >
-        <Box>
+        <div className="label-value-div">
           {selection ? (
-            <Typography> selection.label</Typography>
+            <Typography> {selection.label}</Typography>
           ) : (
-            <Typography color={"grey"}> {placeholder}</Typography>
+            <Typography color={"grey"}> {props.placeholder}</Typography>
           )}
-        </Box>
+        </div>
         <Box>
           <img
             src={SELECT_CARET}
@@ -175,11 +204,23 @@ function SearchBoxSelect({
           />
         </Box>
       </div>
-      {renderDashboardMenu()}
+      {props.isMultiSelect ? renderMultiSelectMenu() : renderSelectMenu()}
+      <Box className="chip-group" sx={{ mt: 1 }}>
+        {props.isMultiSelect && multiSelection.length && props.withChips > 0
+          ? multiSelection.map((select, key) => (
+              <Chip
+                disabled={props.isDisabled}
+                label={select.label}
+                key={select.value}
+                deleteIcon={props.chipDeleteIcon}
+                onDelete={() => handleMultiSelectDelete(select)}
+              />
+            ))
+          : null}
+      </Box>
     </div>
   );
-
-  function renderDashboardMenu() {
+  function renderSelectMenu() {
     const displayOptions = selectOptions
       .map((item) => {
         if (item.label.toLowerCase().includes(searchText.toLowerCase())) {
@@ -198,17 +239,17 @@ function SearchBoxSelect({
 
     return (
       <Menu
-        sx={{ p: 0 }}
+        sx={{ p: 0, mt: 0.7 }}
         anchorEl={anchorEl}
         keepMounted={true}
         open={!!anchorEl}
         onClose={handleClose}
         className={classes.dashboardSelectMenu}
       >
-        {search && (
+        {props.isSearch && (
           <SearchMenuItem
             className={classes.searchBarContainer}
-            sx={{ px: 1 }}
+            sx={{ px: 1, mt: 0 }}
             disableTouchRipple={true}
           >
             <div className={classes.search}>
@@ -223,28 +264,134 @@ function SearchBoxSelect({
           </SearchMenuItem>
         )}
         <ScrollBox sx={{ maxHeight: "200px" }}>
-          {displayOptions.map((item, index) => {
-            return (
-              <div key={index}>
-                <StyledMenuItem
-                  sx={{
-                    background:
-                      selection?.value === item.value &&
-                      `${"orange"} !important`,
-                    color:
-                      selection?.value === item.value && `white !important`,
-                  }}
-                  onClick={() => handleSelect(item)}
-                >
-                  {renderOption(item)}
-                </StyledMenuItem>
-              </div>
-            );
-          })}
+          {displayOptions.length > 0 ? (
+            displayOptions.map((item, index) => {
+              return (
+                <div key={index}>
+                  <StyledMenuItem
+                    className="list-single-item"
+                    sx={{
+                      background:
+                        selection?.value === item.value && `${"orange"}`,
+                      color: selection?.value === item.value && `white`,
+                    }}
+                    onClick={() => handleSelect(item)}
+                  >
+                    {renderOption(item)}
+                  </StyledMenuItem>
+                </div>
+              );
+            })
+          ) : (
+            <div
+              className="no-options-text"
+              style={{ textAlign: "center", my: 1 }}
+            >
+              <Typography variant="hl_paragraphBold">No Options</Typography>
+            </div>
+          )}
+        </ScrollBox>
+      </Menu>
+    );
+  }
+
+  function renderMultiSelectMenu() {
+    const displayOptions = selectOptions
+      .map((item) => {
+        if (item.label.toLowerCase().includes(searchText.toLowerCase())) {
+          return item;
+        }
+        return undefined;
+      })
+      .filter((item) => item !== undefined);
+
+    function renderOption(value) {
+      if (selection?.value === value?.value) {
+        return <div className={classes.checkedItem}>{value.label}</div>;
+      }
+      return value.label;
+    }
+
+    return (
+      <Menu
+        sx={{ p: 0, mt: 0.7 }}
+        anchorEl={anchorEl}
+        keepMounted={true}
+        open={!!anchorEl}
+        onClose={handleClose}
+        className={classes.dashboardSelectMenu}
+        // anchorReference="anchorOrigin"
+        // anchorPosition={{ top: 0, left: 0 }}
+        // anchorOrigin={{
+        //   vertical: "bottom",
+        //   horizontal: "center",
+        // }}
+        // transformOrigin={{
+        //   vertical: "top",
+        //   horizontal: "center",
+        // }}
+      >
+        <SearchMenuItem
+          className={classes.searchBarContainer}
+          sx={{ px: 1, mt: 0 }}
+          disableTouchRipple={true}
+        >
+          <div className={classes.search}>
+            <SearchBar
+              onClear={() => setSearchText("")}
+              placeholder={"Search by keyword.."}
+              isValid={true}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value.trim())}
+            />
+          </div>
+        </SearchMenuItem>
+        <ScrollBox sx={{ maxHeight: "200px" }}>
+          {displayOptions.length > 0 ? (
+            displayOptions.map((item, index) => {
+              return (
+                <div key={index}>
+                  {!containsObject(item, multiSelection) && (
+                    <StyledMenuItem onClick={() => handleMultiSelect(item)}>
+                      {props.withCheckBox && (
+                        <Checkbox
+                          sx={{ padding: 0 }}
+                          checked={multiSelection.indexOf(item) > -1}
+                        />
+                      )}
+                      {renderOption(item)}
+                    </StyledMenuItem>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <Box>
+              <Typography variant="paragraph">No Options</Typography>
+            </Box>
+          )}
         </ScrollBox>
       </Menu>
     );
   }
 }
+SearchBoxSelect.propTypes = {
+  selectionList: PropTypes.array.isRequired,
+  placeholder: PropTypes.string,
+  labelKey: PropTypes.array,
+  valueKeys: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  onChange: PropTypes.func,
+  autoFormat: PropTypes.bool,
+  name: PropTypes.string,
+  isRequired: PropTypes.bool,
+  label: PropTypes.string,
+  isSearch: PropTypes.bool,
+  isMultiSelect: PropTypes.bool,
+  withCheckBox: PropTypes.bool,
+  withChips: PropTypes.bool,
+  isDisabled: PropTypes.bool,
+  chipDeleteIcon: PropTypes.string,
+};
 
 export default SearchBoxSelect;

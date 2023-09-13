@@ -45,7 +45,8 @@
     "rollup-plugin-image": "^1.0.2",
     "rollup-plugin-img": "^1.1.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
-    "rollup-plugin-styles": "^4.0.0"
+    "rollup-plugin-styles": "^4.0.0",
+    "prop-types": "^15.8.1"
   },
   "dependencies": {
     "@babel/runtime": "^7.22.15",
